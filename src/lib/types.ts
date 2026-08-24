@@ -158,3 +158,21 @@ export const SUBMISSION_LABELS: Record<SubmissionStatus, string> = {
   revised: "Revisi",
   graded: "Dinilai",
 };
+
+export type FeedbackCategory = "bug" | "fitur" | "ui" | "performa" | "saran" | "lainnya";
+export type FeedbackPriority = "rendah" | "normal" | "tinggi";
+export type FeedbackStatus = "dikirim" | "dipertimbangkan" | "dikerjakan" | "selesai" | "ditolak";
+export interface Feedback {
+  id: string;
+  user_id: string;
+  category: FeedbackCategory;
+  title: string;
+  description: string;
+  priority: FeedbackPriority;
+  status: FeedbackStatus;
+  is_anonymous: boolean;
+  admin_response: string | null;
+  created_at: string;
+  updated_at: string;
+  author_name?: string | null;
+}

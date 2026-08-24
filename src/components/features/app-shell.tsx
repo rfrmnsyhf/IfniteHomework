@@ -13,6 +13,7 @@ import {
   LogOut,
   Megaphone,
   Menu,
+  MessageSquare,
   Settings,
   Users,
   UsersRound,
@@ -43,6 +44,7 @@ const NAV_ITEMS = [
   { href: "/mata-kuliah", label: "Mata Kuliah", icon: BookOpen },
   { href: "/kelompok", label: "Kelompok", icon: Users },
   { href: "/pengumuman", label: "Pengumuman", icon: Megaphone },
+  { href: "/feedback", label: "Feedback", icon: MessageSquare },
   { href: "/anggota", label: "Anggota Kelas", icon: UsersRound },
 ] as const;
 

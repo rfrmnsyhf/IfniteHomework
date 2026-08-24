@@ -353,6 +353,13 @@ export async function getNotifications(limit = 30): Promise<{
   return { items, unread: items.filter((n) => !n.read).length };
 }
 
+// ========================== FEEDBACK =========================
+export async function getFeedbacks(): Promise<import("./types").Feedback[]> {
+  const supa = await createClient();
+  const { data } = await supa.from("feedback").select("*, author:profiles(name)").order("created_at", { ascending: false });
+  return ((data ?? []) as Array<Record<string, unknown>>).map((f) => ({ ...(f as unknown as import("./types").Feedback), author_name: (f.author as { name?: string } | null)?.name ?? null }));
+}
+
 // ========================= SUBMISSIONS =======================
 
 export async function getMySubmission(taskId: string, userId: string): Promise<Submission | null> {
