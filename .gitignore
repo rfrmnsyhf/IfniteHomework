@@ -38,6 +38,12 @@ yarn-error.log*
 akses.txt
 datamahasiswa.txt
 
+# Local AI agent tooling
+/agents/
+/references/
+/skills/
+/skill_agent.txt
+
 # vercel
 .vercel
 
