@@ -9,6 +9,7 @@ import type {
   Notification,
   PersonalTaskStatus,
   Profile,
+  ProfileSensitive,
   Submission,
   Task,
 } from "./types";
@@ -312,9 +313,23 @@ export async function getClassMembers(): Promise<Array<{ profile: Profile }>> {
   if (!classId) return [];
   const { data } = await supabase
     .from("class_members")
-    .select("profile:profiles(*)")
+    .select("profile:profiles(id, email, name, nim, role, avatar_url, password_changed)")
     .eq("class_id", classId);
   return (data ?? []).map((d) => ({ profile: d.profile as unknown as Profile }));
+}
+
+export async function getClassMemberDetail(userId: string): Promise<ProfileSensitive | null> {
+  const me = await getProfile();
+  if (!me) return null;
+  if (me.id !== userId && me.role !== "admin") return null;
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("profiles")
+    .select("id, email, name, nim, role, avatar_url, password_changed, alamat, no_hp, jenis_kelamin, tempat_lahir, tgl_lahir")
+    .eq("id", userId)
+    .maybeSingle();
+  return (data as ProfileSensitive) ?? null;
 }
 
 // ======================= NOTIFICATIONS =======================

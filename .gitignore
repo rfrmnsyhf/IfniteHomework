@@ -36,6 +36,7 @@ yarn-error.log*
 
 # local secrets - NEVER commit
 akses.txt
+datamahasiswa.txt
 
 # vercel
 .vercel

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { addClassMember, removeClassMember } from "@/lib/actions/admin";
+import { addClassMember, removeClassMember, updateUserRole } from "@/lib/actions/admin";
 import { updateMyProfile } from "@/lib/actions/profile";
 
 export function AddMemberDialog() {
@@ -139,6 +139,22 @@ export function UpdateNameForm({ initialName }: { initialName: string }) {
         Simpan
       </Button>
     </form>
+  );
+}
+
+export function RoleSwitchButton({ userId, currentRole }: { userId: string; currentRole: "admin" | "mahasiswa" }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const next = currentRole === "admin" ? "mahasiswa" : "admin";
+  return (
+    <Button variant="ghost" size="sm" disabled={pending} onClick={() => startTransition(async () => {
+      const res = await updateUserRole(userId, next);
+      if (res.error) { toast.error(res.error); return; }
+      toast.success(`Role diubah ke ${next}`);
+      router.refresh();
+    })}>
+      {pending ? <Loader2 className="size-4 animate-spin" /> : null} Jadikan {next}
+    </Button>
   );
 }
 

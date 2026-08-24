@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { loginWithNim } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,25 +12,22 @@ import { Label } from "@/components/ui/label";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
+  const [nim, setNim] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    if (error) {
-      toast.error("Login gagal", { description: error.message });
-      setLoading(false);
-      return;
-    }
+    setError(null);
+
+    const result = await loginWithNim(nim, password);
+    setLoading(false);
+    if (result.error) { setError(result.error); return; }
     const next = searchParams.get("next");
-    router.replace(next && next.startsWith("/") ? next : "/dashboard");
+    const dest = result.redirectTo ?? (next && next.startsWith("/") ? next : "/dashboard");
+    router.replace(dest);
     router.refresh();
   }
 
@@ -55,15 +51,17 @@ export function LoginForm() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="nim">NIM</Label>
           <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="nama@classflow.id"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="nim"
+            type="text"
+            autoComplete="off"
+            placeholder="1224405"
+            value={nim}
+            onChange={(e) => setNim(e.target.value)}
             required
+            minLength={8}
+            maxLength={8}
           />
         </div>
         <div className="space-y-2">
@@ -83,6 +81,12 @@ export function LoginForm() {
           Masuk
         </Button>
       </form>
+
+      {error && (
+        <p className="text-xs text-destructive">
+          {error}
+        </p>
+      )}
 
       <p className="text-xs text-muted-foreground">
         Lupa password? Hubungi admin kelas untuk reset akun.

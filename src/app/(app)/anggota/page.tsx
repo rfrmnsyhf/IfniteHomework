@@ -1,7 +1,7 @@
 import { UsersRound } from "lucide-react";
 import { getClassMembers } from "@/lib/data";
 import { requireProfile } from "@/lib/auth";
-import { AddMemberDialog, RemoveMemberButton } from "@/components/features/member-forms";
+import { AddMemberDialog, RemoveMemberButton, RoleSwitchButton } from "@/components/features/member-forms";
 import { EmptyState } from "@/components/features/empty-state";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +42,7 @@ export default async function AnggotaPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nama</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>NIM</TableHead>
                 <TableHead>Role</TableHead>
                 {isAdmin && <TableHead className="w-28 text-right">Aksi</TableHead>}
               </TableRow>
@@ -65,7 +65,7 @@ export default async function AnggotaPage() {
                       </span>
                     </span>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{p.email}</TableCell>
+                  <TableCell className="text-muted-foreground">{p.nim ?? "-"}</TableCell>
                   <TableCell>
                     <Badge variant={p.role === "admin" ? "default" : "secondary"}>
                       {p.role === "admin" ? "Admin" : "Mahasiswa"}
@@ -73,9 +73,10 @@ export default async function AnggotaPage() {
                   </TableCell>
                   {isAdmin && (
                     <TableCell className="text-right">
-                      {p.id !== profile.id && p.role === "mahasiswa" && (
-                        <RemoveMemberButton userId={p.id} />
-                      )}
+                      <span className="inline-flex gap-1">
+                        <RoleSwitchButton userId={p.id} currentRole={p.role as "admin" | "mahasiswa"} />
+                        {p.id !== profile.id && <RemoveMemberButton userId={p.id} />}
+                      </span>
                     </TableCell>
                   )}
                 </TableRow>

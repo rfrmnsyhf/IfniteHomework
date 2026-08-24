@@ -309,6 +309,38 @@ export async function deleteGroup(groupId: string): Promise<ActionResult> {
   return {};
 }
 
+// ======================= ROLE MANAGEMENT ========================
+export async function updateUserRole(userId: string, newRole: "admin" | "mahasiswa"): Promise<ActionResult> {
+  const profile = await requireProfile();
+  if (!profile || profile.role !== "admin") return { error: "Hanya admin yang dapat mengubah role" };
+
+  const supabase = await createClient();
+  const admin = createAdminClient();
+
+  // Prevent removing the last admin
+  if (newRole === "mahasiswa") {
+    const { data: admins } = await admin
+      .from("profiles")
+      .select("id, role")
+      .eq("role", "admin");
+
+    const adminCount = admins?.length ?? 0;
+    if (adminCount <= 1) {
+      return { error: "Tidak dapat mengubah role admin terakhir" };
+    }
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ role: newRole })
+    .eq("id", userId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/anggota");
+  return {};
+}
+
 // ====================== ANGGOTA KELAS ========================
 
 export async function addClassMember(email: string): Promise<ActionResult> {

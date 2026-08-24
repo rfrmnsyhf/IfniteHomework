@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { ClassInfo, Profile } from "./types";
+import type { ClassInfo, Profile, ProfileSensitive } from "./types";
 
 export async function getProfile(): Promise<Profile | null> {
   const supabase = await createClient();
@@ -11,10 +11,24 @@ export async function getProfile(): Promise<Profile | null> {
 
   const { data } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, email, name, nim, role, avatar_url, password_changed")
     .eq("id", user.id)
     .maybeSingle();
   return (data as Profile) ?? null;
+}
+
+export async function getFullProfile(): Promise<ProfileSensitive | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("profiles")
+    .select("id, email, name, nim, role, avatar_url, password_changed, alamat, no_hp, jenis_kelamin, tempat_lahir, tgl_lahir")
+    .eq("id", user.id)
+    .maybeSingle();
+  return (data as ProfileSensitive) ?? null;
 }
 
 export async function requireProfile(): Promise<Profile> {

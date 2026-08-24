@@ -16,8 +16,18 @@ export interface Profile {
   id: string;
   email: string;
   name: string;
+  nim: string | null;
   role: UserRole;
   avatar_url: string | null;
+  password_changed: boolean;
+}
+
+export interface ProfileSensitive extends Profile {
+  alamat: string | null;
+  no_hp: string | null;
+  jenis_kelamin: string | null;
+  tempat_lahir: string | null;
+  tgl_lahir: string | null;
 }
 
 export interface ClassInfo {
