@@ -41,9 +41,11 @@ const TYPE_OPTS: Array<{ v: TaskType; l: string }> = [
 
 function toLocalInput(iso: string | null): string {
   if (!iso) return "";
+  // Parse ISO string as UTC, then format as Jakarta time for datetime-local input
   const d = new Date(iso);
+  const jakarta = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${jakarta.getFullYear()}-${pad(jakarta.getMonth() + 1)}-${pad(jakarta.getDate())}T${pad(jakarta.getHours())}:${pad(jakarta.getMinutes())}`;
 }
 
 export function TaskFormDialog({
@@ -95,19 +97,21 @@ export function TaskFormDialog({
     e.preventDefault();
     if (!deadline || isNaN(Date.parse(deadline))) { toast.error("Deadline tidak valid"); return; }
     if (allowSubmission && submissionDeadline && isNaN(Date.parse(submissionDeadline))) { toast.error("Batas pengumpulan tidak valid"); return; }
+    // Parse datetime-local as Jakarta time (Asia/Jakarta = UTC+7)
+    const toUTC = (local: string) => new Date(local + "+07:00").toISOString();
     startTransition(async () => {
       const res = await saveTask({
         id: task?.id,
         course_id: courseId,
         title,
         description,
-        deadline: new Date(deadline).toISOString(),
+        deadline: toUTC(deadline),
         priority,
         type,
         allow_submission: allowSubmission,
         submission_deadline:
           allowSubmission && submissionDeadline
-            ? new Date(submissionDeadline).toISOString()
+            ? toUTC(submissionDeadline)
             : null,
       });
       if (res.error) {
@@ -126,7 +130,12 @@ export function TaskFormDialog({
     });
   }
 
+  const [confirmDelete, setConfirmDelete] = useState(false);
   function onDelete() {
+    if (!task) return;
+    setConfirmDelete(true);
+  }
+  function confirmDeleteTask() {
     if (!task) return;
     startTransition(async () => {
       const res = await deleteTask(task.id);
@@ -135,6 +144,7 @@ export function TaskFormDialog({
         return;
       }
       toast.success("Tugas dihapus");
+      setConfirmDelete(false);
       setOpen(false);
       router.push("/tugas");
       router.refresh();
@@ -142,17 +152,18 @@ export function TaskFormDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          trigger ?? (
-            <Button size="sm">
-              <Plus className="size-4" /> Tambah Tugas
-            </Button>
-          )
-        }
-      />
-      <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger
+          render={
+            trigger ?? (
+              <Button size="sm">
+                <Plus className="size-4" /> Tambah Tugas
+              </Button>
+            )
+          }
+        />
+        <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{task ? "Edit Tugas" : "Tugas Baru"}</DialogTitle>
           <DialogDescription>
@@ -293,5 +304,26 @@ export function TaskFormDialog({
         </form>
       </DialogContent>
     </Dialog>
+    {task && (
+      <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Hapus tugas ini?</DialogTitle>
+            <DialogDescription>
+              Tugas &quot;{task.title}&quot; akan dihapus beserta checklist, attachment, dan status terkait. Tindakan ini tidak dapat dibatalkan.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirmDelete(false)} disabled={pending}>
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteTask} disabled={pending}>
+              {pending && <Loader2 className="size-4 animate-spin" />} Hapus
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )}
+    </>
   );
 }

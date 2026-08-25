@@ -98,33 +98,44 @@ async function buildMyTasks() {
   return mergeTaskMeta((raw ?? []) as RawTask[], statuses, checklists);
 }
 
+export async function getTaskCore(taskId: string) {
+  const supabase = await createClient();
+  const profile = await getProfile();
+  if (!profile) return null;
+  const [taskRes, metaRes] = await Promise.all([
+    supabase.from("tasks").select("id, course_id, title, description, deadline, priority, type, allow_submission, submission_deadline, created_by, created_at, course:courses(name, color)").eq("id", taskId).maybeSingle(),
+    fetchTaskMeta([taskId], profile.id),
+  ]);
+  if (!taskRes.data) return null;
+  const task = taskRes.data as unknown as RawTask;
+  const [merged] = mergeTaskMeta([task], metaRes.statuses, metaRes.checklists);
+  return merged;
+}
 export async function getTaskById(taskId: string) {
   const supabase = await createClient();
   const profile = await getProfile();
   if (!profile) return null;
-
-  const { data: task } = await supabase
-    .from("tasks")
-    .select("*, course:courses(name, color)")
-    .eq("id", taskId)
-    .maybeSingle();
+  const { data: task } = await supabase.from("tasks").select("*, course:courses(name, color)").eq("id", taskId).maybeSingle();
   if (!task) return null;
-
   const { statuses, checklists } = await fetchTaskMeta([taskId], profile.id);
   const [merged] = mergeTaskMeta([task as RawTask], statuses, checklists);
-
   const [attachmentsRes, checklistRes] = await Promise.all([
     supabase.from("attachments").select("*").eq("task_id", taskId).order("created_at", { ascending: true }),
     supabase.from("checklists").select("*").eq("task_id", taskId).order("sort_order", { ascending: true }),
   ]);
   const { data: attachments } = attachmentsRes;
   const { data: fullChecklist } = checklistRes;
-
-  return {
-    task: merged,
-    attachments: (attachments ?? []) as Attachment[],
-    checklist: (fullChecklist ?? []) as ChecklistItem[],
-  };
+  return { task: merged, attachments: (attachments ?? []) as Attachment[], checklist: (fullChecklist ?? []) as ChecklistItem[] };
+}
+export async function getTaskAttachments(taskId: string): Promise<Attachment[]> {
+  const supa = await createClient();
+  const { data } = await supa.from("attachments").select("*").eq("task_id", taskId).order("created_at", { ascending: true });
+  return (data ?? []) as Attachment[];
+}
+export async function getTaskChecklist(taskId: string): Promise<ChecklistItem[]> {
+  const supa = await createClient();
+  const { data } = await supa.from("checklists").select("*").eq("task_id", taskId).order("sort_order", { ascending: true });
+  return (data ?? []) as ChecklistItem[];
 }
 
 /** Tugas satu mata kuliah (halaman course) */

@@ -329,10 +329,14 @@ export function AppShell({
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push("/pengaturan")}>
-                  <Settings className="size-4" /> Pengaturan
+                  <Button variant="ghost" className="w-full justify-start gap-2">
+                    <Settings className="size-4" /> Pengaturan
+                  </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/notifikasi")}>
-                  <Bell className="size-4" /> Notifikasi
+                  <Button variant="ghost" className="w-full justify-start gap-2">
+                    <Bell className="size-4" /> Notifikasi
+                  </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

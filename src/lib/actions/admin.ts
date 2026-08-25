@@ -130,11 +130,16 @@ export async function deleteTask(taskId: string): Promise<ActionResult> {
   const profile = await getProfile();
   if (!profile || profile.role !== "admin") return { error: "Hanya admin yang dapat menghapus tugas" };
   const supabase = await createClient();
+  const { data: existing, error: findErr } = await supabase.from("tasks").select("id, title").eq("id", taskId).maybeSingle();
+  if (findErr) return { error: findErr.message };
+  if (!existing) return { error: "Tugas tidak ditemukan" };
   const { error } = await supabase.from("tasks").delete().eq("id", taskId);
   if (error) return { error: error.message };
-  revalidatePath("/dashboard");
-  revalidatePath("/tugas");
-  revalidatePath("/mata-kuliah");
+  revalidatePath("/dashboard", "page");
+  revalidatePath("/tugas", "page");
+  revalidatePath(`/tugas/${taskId}`, "page");
+  revalidatePath("/kalender", "page");
+  revalidatePath("/mata-kuliah", "page");
   return {};
 }
 
