@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function notifyUsers(
   userIds: string[],
-  n: { title: string; body?: string; link?: string }
+  n: { title: string; body?: string; link?: string; metadata?: Record<string, unknown> | null }
 ) {
   const valid = userIds.filter(Boolean);
   if (valid.length === 0) return;

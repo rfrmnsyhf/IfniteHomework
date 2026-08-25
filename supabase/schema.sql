@@ -62,7 +62,8 @@ create table public.tasks (
   allow_submission    boolean not null default true,
   submission_deadline timestamptz,
   created_by          uuid references public.profiles (id),
-  created_at          timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  metadata   jsonb
 );
 
 create table public.task_assignments (

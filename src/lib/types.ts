@@ -133,6 +133,7 @@ export interface Notification {
   link: string | null;
   read: boolean;
   created_at: string;
+  metadata?: { type: string; task_id?: string; deadline?: string } | null;
 }
 
 export const STATUS_LABELS: Record<PersonalTaskStatus, string> = {
