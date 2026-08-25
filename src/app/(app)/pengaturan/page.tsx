@@ -22,7 +22,6 @@ export default async function PengaturanPage({ searchParams }: { searchParams: P
       <Card className="py-5"><CardHeader className="px-5"><CardTitle>Profil</CardTitle><CardDescription>Informasi dasar akun kamu.</CardDescription></CardHeader>
         <CardContent className="space-y-4 px-5"><UpdateNameForm initialName={profile.name} /><Separator />
           <dl className="grid gap-3 text-sm sm:grid-cols-2">
-            <div><dt className="text-muted-foreground">Email</dt><dd className="font-medium">{profile.email}</dd></div>
             <div><dt className="text-muted-foreground">NIM</dt><dd className="font-medium">{profile.nim ?? "-"}</dd></div>
             <div><dt className="text-muted-foreground">Role</dt><dd><Badge variant={profile.role === "admin" ? "default" : "secondary"}>{ROLE_LABEL[profile.role]}</Badge></dd></div>
             <div><dt className="text-muted-foreground">Kelas</dt><dd className="font-medium">{kelas ? `${kelas.name} (${kelas.code}) • ${kelas.academic_year}` : "-"}</dd></div>

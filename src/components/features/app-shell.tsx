@@ -328,7 +328,7 @@ export function AppShell({
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>
                   <p>{profile.name}</p>
-                  <p className="text-xs font-normal text-muted-foreground">{profile.email}</p>
+                  <p className="text-xs font-normal text-muted-foreground">{profile.nim ?? "-"} · {ROLE_LABEL[profile.role]}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem render={<Link href="/pengaturan" />}>
