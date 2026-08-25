@@ -22,7 +22,7 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const result = await loginWithNim(nim, password);
+    const result = await loginWithNim(nim.trim(), password);
     setLoading(false);
     if (result.error) { setError(result.error); return; }
     const next = searchParams.get("next");
@@ -60,8 +60,8 @@ export function LoginForm() {
             value={nim}
             onChange={(e) => setNim(e.target.value)}
             required
-            minLength={8}
-            maxLength={8}
+            minLength={7}
+            maxLength={7}
           />
         </div>
         <div className="space-y-2">

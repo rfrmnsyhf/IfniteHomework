@@ -10,13 +10,13 @@ export function TaskCard({ task, showStatusSelect = true }: { task: TaskWithMeta
   const overdue = isOverdue(task, task.my_status);
 
   return (
-    <Card className="group relative flex h-full flex-col gap-0 overflow-hidden pt-0 transition-shadow hover:shadow-md">
+    <Card className="group relative flex h-full flex-col overflow-hidden pt-0 transition-shadow hover:shadow-md">
       <span
         aria-hidden
         className="h-1 w-full"
         style={{ backgroundColor: task.course_color ?? "#71717a" }}
       />
-      <CardHeader className="space-y-2">
+      <CardHeader className="space-y-3">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {task.course_name}
@@ -29,7 +29,7 @@ export function TaskCard({ task, showStatusSelect = true }: { task: TaskWithMeta
           </h3>
         </Link>
       </CardHeader>
-      <CardContent className="flex-1 space-y-3 text-sm">
+      <CardContent className="flex-1 space-y-4 text-sm">
         <div
           className={cn(
             "flex items-center gap-2",
@@ -58,7 +58,7 @@ export function TaskCard({ task, showStatusSelect = true }: { task: TaskWithMeta
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex items-center justify-between gap-2 border-t bg-muted/30 py-3">
+      <CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t bg-muted/30 py-4">
         <StatusBadge status={task.my_status} />
         {showStatusSelect && <StatusSelect taskId={task.id} current={task.my_status} />}
         {!showStatusSelect && (

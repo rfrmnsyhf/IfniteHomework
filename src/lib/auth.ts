@@ -1,21 +1,21 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ClassInfo, Profile, ProfileSensitive } from "./types";
 
-export async function getProfile(): Promise<Profile | null> {
+export const getProfile = cache(async (): Promise<Profile | null> => {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
-
   const { data } = await supabase
     .from("profiles")
     .select("id, email, name, nim, role, avatar_url, password_changed")
     .eq("id", user.id)
     .maybeSingle();
   return (data as Profile) ?? null;
-}
+});
 
 export async function getFullProfile(): Promise<ProfileSensitive | null> {
   const supabase = await createClient();
@@ -44,7 +44,7 @@ export async function requireAdmin(): Promise<Profile> {
   return profile;
 }
 
-export async function getMyClassId(): Promise<string | null> {
+export const getMyClassId = cache(async (): Promise<string | null> => {
   const supabase = await createClient();
   const profile = await getProfile();
   if (!profile) return null;
@@ -55,7 +55,7 @@ export async function getMyClassId(): Promise<string | null> {
     .limit(1)
     .maybeSingle();
   return data?.class_id ?? null;
-}
+});
 
 export async function getMyClass(): Promise<ClassInfo | null> {
   const supabase = await createClient();

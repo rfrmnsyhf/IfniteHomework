@@ -1,6 +1,7 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect -- sync task prop to form state */
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Plus } from "lucide-react";
@@ -79,8 +80,21 @@ export function TaskFormDialog({
     toLocalInput(task?.submission_deadline ?? null)
   );
 
+  useEffect(() => {
+    setCourseId(task?.course_id ?? "");
+    setTitle(task?.title ?? "");
+    setDescription(task?.description ?? "");
+    setDeadline(toLocalInput(task?.deadline ?? null));
+    setPriority(task?.priority ?? "sedang");
+    setType(task?.type ?? "individu");
+    setAllowSubmission(task?.allow_submission ?? true);
+    setSubmissionDeadline(toLocalInput(task?.submission_deadline ?? null));
+  }, [task?.course_id, task?.deadline, task?.description, task?.priority, task?.submission_deadline, task?.title, task?.type, task?.allow_submission]);
+
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!deadline || isNaN(Date.parse(deadline))) { toast.error("Deadline tidak valid"); return; }
+    if (allowSubmission && submissionDeadline && isNaN(Date.parse(submissionDeadline))) { toast.error("Batas pengumpulan tidak valid"); return; }
     startTransition(async () => {
       const res = await saveTask({
         id: task?.id,

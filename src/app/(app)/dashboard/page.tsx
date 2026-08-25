@@ -91,7 +91,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <header className="space-y-1">
+      <header className="space-y-1.5">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           Selamat datang, {profile.name.split(" ")[0]}
         </h1>
@@ -127,17 +127,17 @@ export default async function DashboardPage() {
       )}
 
       {/* Statistik */}
-      <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-5 xl:grid-cols-4">
         <StatCard value={active.length} label="Tugas Aktif" icon={Inbox} />
         <StatCard value={urgent48.length} label="Deadline < 48 Jam" icon={CalendarClock} accent={urgent48.length > 0 ? "red" : undefined} />
         <StatCard value={`${progressPct}%`} label="Progress Kamu" icon={Hourglass} accent="green" />
         <StatCard value={overdue.length} label="Terlambat" icon={AlertTriangle} accent={overdue.length > 0 ? "red" : undefined} />
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
         {/* Deadline terdekat */}
         <Card className="h-fit gap-0 overflow-hidden py-0">
-          <CardHeader className="border-b bg-muted/30 py-3">
+          <CardHeader className="border-b bg-muted/30 py-4">
             <CardTitle className="text-sm font-semibold uppercase tracking-wide">
               Deadline Terdekat
             </CardTitle>
@@ -192,7 +192,7 @@ export default async function DashboardPage() {
               description="Semua deadline sudah aman. Cek halaman Kalender untuk rencana ke depan."
             />
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
               {thisWeek.slice(0, 6).map((t) => (
                 <TaskCard key={t.id} task={t} />
               ))}

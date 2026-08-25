@@ -105,10 +105,12 @@ export const URGENCY_TEXT: Record<Urgency, string> = {
   gray: "text-muted-foreground",
 };
 
-export function initials(name: string): string {
+export function initials(name: string | null | undefined): string {
+  if (!name?.trim()) return "?";
   return name
+    .trim()
     .split(/\s+/)
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("");
+    .join("") || "?";
 }

@@ -34,7 +34,7 @@ export function StatusSelect({
 
   return (
     <Select value={current} onValueChange={change} disabled={pending}>
-      <SelectTrigger size="sm" className="w-[170px]" aria-label="Status tugas">
+      <SelectTrigger size="sm" className="min-w-[130px] max-w-[160px] flex-1" aria-label="Status tugas">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -66,8 +66,8 @@ export default async function TugasPage({
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-8">
+      <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Tugas</h1>
           <p className="text-sm text-muted-foreground">
@@ -78,7 +78,7 @@ export default async function TugasPage({
       </header>
 
       {/* Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-2">
         {TABS.map((tb) => (
           <Link
             key={tb.key}
@@ -121,7 +121,7 @@ export default async function TugasPage({
           description="Coba ubah tab atau filter mata kuliah/prioritas."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((t) => (
             <TaskCard key={t.id} task={t} />
           ))}

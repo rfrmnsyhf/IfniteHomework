@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect -- sync initialItems to state */
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -101,7 +102,7 @@ function UserCard({ profile }: { profile: Profile }) {
     <div className="flex items-center gap-3 rounded-xl border p-3">
       <Avatar className="size-9">
         <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-          {initials(profile.name)}
+          {initials(profile.name ?? profile.nim)}
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1 leading-tight">
@@ -128,14 +129,10 @@ export function NotificationBell({
   const [unread, setUnread] = useState(initialUnread);
 
   // pola React "menyesuaikan state saat render" — sinkron saat data server berubah
-  const [lastInitial, setLastInitial] = useState(initialItems);
-  const [lastUnread, setLastUnread] = useState(initialUnread);
-  if (lastInitial !== initialItems || lastUnread !== initialUnread) {
-    setLastInitial(initialItems);
-    setLastUnread(initialUnread);
+  useEffect(() => {
     setItems(initialItems);
     setUnread(initialUnread);
-  }
+  }, [initialItems, initialUnread]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -320,7 +317,7 @@ export function AppShell({
               <DropdownMenuTrigger render={<Button variant="ghost" className="gap-2 px-2" />}>
                 <Avatar className="size-7">
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                    {initials(profile.name)}
+                    {initials(profile.name ?? profile.nim)}
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden text-sm font-medium sm:block">{profile.name}</span>

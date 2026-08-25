@@ -128,19 +128,18 @@ async function updateProfiles(students: any[]): Promise<void> {
 
 // Insert class (should already exist from previous seed)
 async function ensureClass(): Promise<string> {
-  const { data: found } = await admin
-    .from("classes")
-    .select("id")
-    .eq("code", "SI-6A")
-    .maybeSingle();
-
-  if (found) return found.id;
-
+  const { data: ti } = await admin.from("classes").select("id").eq("code", "TI-6A").maybeSingle();
+  if (ti) return ti.id;
+  const { data: legacy } = await admin.from("classes").select("id").eq("code", "SI-6A").maybeSingle();
+  if (legacy) {
+    await admin.from("classes").update({ code: "TI-6A", name: "Teknik Informatika 6A" }).eq("id", legacy.id);
+    return legacy.id;
+  }
   const { data: created, error } = await admin
     .from("classes")
     .insert({
-      name: "Sistem Informasi 6A",
-      code: "SI-6A",
+      name: "Teknik Informatika 6A",
+      code: "TI-6A",
       semester: 6,
       academic_year: "2026/2027",
     })

@@ -7,6 +7,7 @@ export async function loginWithNim(nim: string, password: string): Promise<{ err
   const nimTrim = nim.trim();
   if (!nimTrim) return { error: "NIM wajib diisi" };
   if (!/^\d+$/.test(nimTrim)) return { error: "NIM hanya berupa angka" };
+  if (nimTrim.length !== 7) return { error: "NIM harus 7 angka" };
 
   // Use admin client to check NIM existence without RLS issues
   const admin = createAdminClient();
@@ -54,7 +55,7 @@ export async function changePassword(
 
   // Verify current password by attempting sign-in with a throwaway client
   const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
-  const verifyClient = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+  const verifyClient = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
   const { error: verifyError } = await verifyClient.auth.signInWithPassword({ email, password: currentPassword });
@@ -63,10 +64,8 @@ export async function changePassword(
   const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) return { error: error.message };
 
-  const { error: updateError } = await supabase.from("profiles").update({ password_changed: true }).eq("id", user.id);
-  if (updateError) {
-    // Non-critical, password already changed in auth
-    console.warn("Failed to update password_changed flag:", updateError.message);
-  }
+  const adminUpd = createAdminClient();
+  const { error: updateError } = await adminUpd.from("profiles").update({ password_changed: true }).eq("id", user.id);
+  if (updateError) return { error: "Gagal update status password: " + updateError.message };
   return { success: true };
 }

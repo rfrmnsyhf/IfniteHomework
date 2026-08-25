@@ -52,7 +52,7 @@ export async function saveTask(input: TaskInput): Promise<ActionResult> {
       .eq("id", input.id)
       .maybeSingle();
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("tasks")
       .update({
         course_id: input.course_id,
@@ -64,8 +64,11 @@ export async function saveTask(input: TaskInput): Promise<ActionResult> {
         allow_submission: input.allow_submission,
         submission_deadline: input.submission_deadline,
       })
-      .eq("id", input.id);
+      .eq("id", input.id)
+      .select("id")
+      .maybeSingle();
     if (error) return { error: error.message };
+    if (!updated) return { error: "Gagal update (RLS atau tugas tidak ditemukan)" };
 
     if (before && new Date(before.deadline).getTime() !== new Date(input.deadline).getTime()) {
       const ids = await classStudentIds((await getClassOfCourse(input.course_id)) ?? "");
@@ -111,6 +114,8 @@ export async function saveTask(input: TaskInput): Promise<ActionResult> {
 
   revalidatePath("/dashboard");
   revalidatePath("/tugas");
+  if (input.id) revalidatePath(`/tugas/${input.id}`);
+  revalidatePath("/kalender");
   revalidatePath("/mata-kuliah");
   return {};
 }
