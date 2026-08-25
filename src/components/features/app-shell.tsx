@@ -171,7 +171,9 @@ export function NotificationBell({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="ghost" size="icon" className="relative" aria-label="Notifikasi" />}
+        render={(props) => (
+          <Button {...props} variant="ghost" size="icon" className="relative" aria-label="Notifikasi" />
+        )}
       >
         <Bell className="size-5" />
         {unread > 0 && (
@@ -314,7 +316,11 @@ export function AppShell({
               userId={profile.id}
             />
             <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="ghost" className="gap-2 px-2" />}>
+              <DropdownMenuTrigger
+                render={(props) => (
+                  <Button {...props} variant="ghost" className="gap-2 px-2" />
+                )}
+              >
                 <Avatar className="size-7">
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                     {initials(profile.name ?? profile.nim)}
@@ -328,15 +334,17 @@ export function AppShell({
                   <p className="text-xs font-normal text-muted-foreground">{profile.nim ?? "-"} · {ROLE_LABEL[profile.role]}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/pengaturan")}>
-                  <Button variant="ghost" className="w-full justify-start gap-2">
-                    <Settings className="size-4" /> Pengaturan
-                  </Button>
+                <DropdownMenuItem
+                  className="w-full justify-start gap-2 px-1.5 py-1"
+                  onClick={() => router.push("/pengaturan")}
+                >
+                  <Settings className="size-4" /> Pengaturan
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/notifikasi")}>
-                  <Button variant="ghost" className="w-full justify-start gap-2">
-                    <Bell className="size-4" /> Notifikasi
-                  </Button>
+                <DropdownMenuItem
+                  className="w-full justify-start gap-2 px-1.5 py-1"
+                  onClick={() => router.push("/notifikasi")}
+                >
+                  <Bell className="size-4" /> Notifikasi
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

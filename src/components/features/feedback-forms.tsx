@@ -2,13 +2,13 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createFeedback, updateFeedbackAdmin } from "@/lib/actions/feedback";
+import { createFeedback, deleteFeedback, updateFeedbackAdmin } from "@/lib/actions/feedback";
 import type { FeedbackCategory, FeedbackPriority, FeedbackStatus } from "@/lib/types";
 
 const CATS: FeedbackCategory[] = ["bug","fitur","ui","performa","saran","lainnya"];
@@ -59,14 +59,33 @@ export function AdminFeedbackActions({ id, status, admin_response }: { id: strin
   const [pending, start] = useTransition();
   const [st, setSt] = useState<FeedbackStatus>(status);
   const [resp, setResp] = useState(admin_response ?? "");
+  const [confirmDel, setConfirmDel] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   function save() {
     start(async () => {
       const res = await updateFeedbackAdmin(id, { status: st, admin_response: resp || null });
       if (res.error) { toast.error(res.error); return; }
       toast.success("Feedback diperbarui");
+      setResp("");
       router.refresh();
     });
   }
+
+  async function handleDelete() {
+    if (deleting) return;
+    setDeleting(true);
+    const res = await deleteFeedback(id);
+    if (res.error) {
+      toast.error("Gagal menghapus", { description: res.error });
+      setDeleting(false);
+      setConfirmDel(false);
+      return;
+    }
+    toast.success("Feedback dihapus");
+    router.refresh();
+  }
+
   return (
     <div className="space-y-2 rounded-lg border p-3">
       <div className="grid grid-cols-2 gap-2">
@@ -74,6 +93,21 @@ export function AdminFeedbackActions({ id, status, admin_response }: { id: strin
         <Button size="sm" onClick={save} disabled={pending}>{pending ? <Loader2 className="size-4 animate-spin" /> : "Simpan"}</Button>
       </div>
       <Textarea value={resp} onChange={e=>setResp(e.target.value)} placeholder="Respons admin..." rows={2} />
+      <div className="pt-1">
+        {!confirmDel ? (
+          <Button variant="destructive" size="sm" onClick={() => setConfirmDel(true)} disabled={deleting}>
+            <Trash2 className="size-4" /> Hapus
+          </Button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Hapus feedback ini?</span>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDel(false)} disabled={deleting}>Batal</Button>
+            <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
+              {deleting && <Loader2 className="size-4 animate-spin" />} Hapus
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

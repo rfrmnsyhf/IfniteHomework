@@ -8,5 +8,8 @@ export async function notifyUsers(
   const valid = userIds.filter(Boolean);
   if (valid.length === 0) return;
   const admin = createAdminClient();
-  await admin.from("notifications").insert(valid.map((user_id) => ({ user_id, ...n })));
+  const { error } = await admin
+    .from("notifications")
+    .insert(valid.map((user_id) => ({ user_id, ...n })));
+  if (error) console.error("[notifyUsers]", error.message);
 }

@@ -4,7 +4,7 @@ import { ArrowLeft, ClipboardList, Users } from "lucide-react";
 import { getClassMembers, getGroup, getTasksInRange } from "@/lib/data";
 import { requireProfile } from "@/lib/auth";
 import { StatusBadge } from "@/components/features/badges";
-import { GroupFormDialog, GroupMembersManager } from "@/components/features/group-forms";
+import { GroupFormDialog, DeleteGroupButton, GroupMembersManager } from "@/components/features/group-forms";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatTanggalPendek, initials } from "@/lib/utils";
@@ -19,9 +19,7 @@ export default async function GroupDetailPage({
 
   const isAdmin = profile.role === "admin";
   const members = await getClassMembers();
-  const candidates = members
-    .map((m) => m.profile)
-    .filter((p) => p.role === "mahasiswa");
+  const candidates = members.map((m) => m.profile);
 
   // tugas kelompok: task bertipe kelompok dalam rentang semester berjalan
   const now = new Date();
@@ -48,14 +46,17 @@ export default async function GroupDetailPage({
           </p>
         </div>
         {isAdmin && (
-          <GroupFormDialog
-            group={{
-              id: group.id,
-              name: group.name,
-              project_title: group.project_title,
-              description: group.description,
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <GroupFormDialog
+              group={{
+                id: group.id,
+                name: group.name,
+                project_title: group.project_title,
+                description: group.description,
+              }}
+            />
+            <DeleteGroupButton groupId={group.id} groupName={group.name} />
+          </div>
         )}
       </header>
 

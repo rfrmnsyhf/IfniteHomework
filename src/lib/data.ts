@@ -111,6 +111,18 @@ export async function getTaskCore(taskId: string) {
   const [merged] = mergeTaskMeta([task], metaRes.statuses, metaRes.checklists);
   return merged;
 }
+
+export async function getTaskHeader(taskId: string) {
+  const supabase = await createClient();
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("id, course_id, title, description, deadline, priority, type, allow_submission, submission_deadline, created_by, created_at, course:courses(name, color)")
+    .eq("id", taskId)
+    .maybeSingle();
+  if (!task) return null;
+  return task as unknown as RawTask;
+}
+
 export async function getTaskById(taskId: string) {
   const supabase = await createClient();
   const profile = await getProfile();
@@ -284,8 +296,27 @@ export async function getGroups(): Promise<Group[]> {
 }
 
 export async function getGroup(groupId: string): Promise<Group | null> {
-  const all = await getGroups();
-  return all.find((g) => g.id === groupId) ?? null;
+  const supabase = await createClient();
+  const { data: group } = await supabase
+    .from("groups")
+    .select("*")
+    .eq("id", groupId)
+    .maybeSingle();
+  if (!group) return null;
+
+  const { data: gm } = await supabase
+    .from("group_members")
+    .select("user_id, role_in_group, profile:profiles(id, email, name, role, avatar_url)")
+    .eq("group_id", groupId);
+
+  return {
+    ...group,
+    members: (gm ?? []).map((m) => ({
+      user_id: m.user_id,
+      role_in_group: m.role_in_group,
+      profile: m.profile as unknown as Profile,
+    })),
+  } as Group;
 }
 
 // ======================== ANNOUNCEMENTS ======================

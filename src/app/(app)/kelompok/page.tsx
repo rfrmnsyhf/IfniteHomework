@@ -3,7 +3,7 @@ import { ArrowRight, Users } from "lucide-react";
 import { getGroups } from "@/lib/data";
 import { requireProfile } from "@/lib/auth";
 import { EmptyState } from "@/components/features/empty-state";
-import { GroupFormDialog } from "@/components/features/group-forms";
+import { DeleteGroupButton, GroupFormDialog } from "@/components/features/group-forms";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { initials } from "@/lib/utils";
@@ -57,12 +57,17 @@ export default async function KelompokPage() {
                   </span>
                 </div>
 
-                <Link
-                  href={`/kelompok/${g.id}`}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                >
-                  Buka Kelompok <ArrowRight className="size-4" />
-                </Link>
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={`/kelompok/${g.id}`}
+                    className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                  >
+                    Buka Kelompok <ArrowRight className="size-4" />
+                  </Link>
+                  {profile.role === "admin" && (
+                    <DeleteGroupButton groupId={g.id} groupName={g.name} />
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

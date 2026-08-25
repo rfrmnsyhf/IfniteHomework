@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { saveGroup, setGroupMember } from "@/lib/actions/admin";
+import { deleteGroup, saveGroup, setGroupMember } from "@/lib/actions/admin";
 import type { Profile } from "@/lib/types";
 
 export function GroupFormDialog({
@@ -91,6 +91,55 @@ export function GroupFormDialog({
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+export function DeleteGroupButton({
+  groupId,
+  groupName,
+}: {
+  groupId: string;
+  groupName: string;
+}) {
+  const router = useRouter();
+  const [confirm, setConfirm] = useState(false);
+  const [pending, setPending] = useState(false);
+
+  async function handleDelete() {
+    if (pending) return;
+    setPending(true);
+    const res = await deleteGroup(groupId);
+    if (res.error) {
+      toast.error("Gagal menghapus", { description: res.error });
+      setPending(false);
+      setConfirm(false);
+      return;
+    }
+    toast.success("Kelompok dihapus");
+    router.push("/kelompok");
+    router.refresh();
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      {!confirm ? (
+        <Button variant="destructive" size="sm" onClick={() => setConfirm(true)} disabled={pending}>
+          <Trash2 className="size-4" /> Hapus
+        </Button>
+      ) : (
+        <>
+          <span className="text-sm text-muted-foreground">
+            Hapus &ldquo;{groupName}&rdquo;?
+          </span>
+          <Button variant="ghost" size="sm" onClick={() => setConfirm(false)} disabled={pending}>
+            Batal
+          </Button>
+          <Button variant="destructive" size="sm" onClick={handleDelete} disabled={pending}>
+            {pending && <Loader2 className="size-4 animate-spin" />} Hapus
+          </Button>
+        </>
+      )}
+    </div>
   );
 }
 

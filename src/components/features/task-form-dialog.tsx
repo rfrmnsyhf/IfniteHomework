@@ -41,11 +41,11 @@ const TYPE_OPTS: Array<{ v: TaskType; l: string }> = [
 
 function toLocalInput(iso: string | null): string {
   if (!iso) return "";
-  // Parse ISO string as UTC, then format as Jakarta time for datetime-local input
   const d = new Date(iso);
-  const jakarta = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+  const jakartaMs = d.getTime() + 7 * 60 * 60 * 1000;
+  const jakarta = new Date(jakartaMs);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${jakarta.getFullYear()}-${pad(jakarta.getMonth() + 1)}-${pad(jakarta.getDate())}T${pad(jakarta.getHours())}:${pad(jakarta.getMinutes())}`;
+  return `${jakarta.getUTCFullYear()}-${pad(jakarta.getUTCMonth() + 1)}-${pad(jakarta.getUTCDate())}T${pad(jakarta.getUTCHours())}:${pad(jakarta.getUTCMinutes())}`;
 }
 
 export function TaskFormDialog({

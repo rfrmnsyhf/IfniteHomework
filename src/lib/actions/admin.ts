@@ -238,6 +238,7 @@ export async function createAnnouncement(title: string, content: string): Promis
   const ids = await classStudentIds(classId);
   await notifyUsers(ids, {
     title: `Pengumuman: ${title.trim()}`,
+    body: content.trim().slice(0, 120),
     link: "/pengumuman",
   });
 

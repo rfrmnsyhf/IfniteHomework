@@ -28,6 +28,16 @@ export async function createFeedback(input: {
   return {};
 }
 
+export async function deleteFeedback(id: string): Promise<{ error?: string }> {
+  const p = await requireProfile();
+  if (p.role !== "admin") return { error: "Hanya admin" };
+  const supa = await createClient();
+  const { error } = await supa.from("feedback").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/feedback");
+  return {};
+}
+
 export async function updateFeedbackAdmin(
   id: string,
   patch: { status?: string; admin_response?: string | null }
