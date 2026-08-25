@@ -98,11 +98,11 @@ export function CalendarMonth({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
       {/* Grid kalender */}
       <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-bold">
             {MONTHS[month - 1]} {year}
           </h2>
           <div className="flex gap-1">
@@ -115,7 +115,7 @@ export function CalendarMonth({
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">
+        <div className="grid grid-cols-7 gap-0.5 text-center text-xs font-medium text-muted-foreground">
           {WEEKDAYS.map((w) => (
             <div key={w} className="py-1">
               {w}
@@ -123,9 +123,9 @@ export function CalendarMonth({
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5">
           {grid.map((cell, idx) => {
-            if (!cell.iso) return <div key={idx} className="aspect-square" />;
+            if (!cell.iso) return <div key={idx} className="min-h-[42px] lg:min-h-[52px]" />;
             const dayTasks = byDay.get(cell.iso) ?? [];
             const urgencies = [...new Set(dayTasks.map((t) => urgencyOf(t.deadline, t.my_status)))];
             const isToday = cell.iso === todayKey;
@@ -135,13 +135,13 @@ export function CalendarMonth({
                 key={cell.iso}
                 onClick={() => setSelected(cell.iso!)}
                 className={cn(
-                  "flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border p-1 text-sm transition-colors hover:bg-muted",
+                  "flex min-h-[42px] flex-col items-center justify-center gap-0.5 rounded-lg border p-1.5 text-xs transition-colors hover:bg-muted lg:min-h-[52px]",
                   isSelected && "border-primary bg-primary/5 ring-1 ring-primary"
                 )}
               >
                 <span
                   className={cn(
-                    "grid size-6 place-items-center rounded-full",
+                    "grid size-5 place-items-center rounded-full",
                     isToday && "bg-primary font-bold text-primary-foreground"
                   )}
                 >
@@ -160,7 +160,7 @@ export function CalendarMonth({
         </div>
 
         {/* Legend */}
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <span className={cn("size-2 rounded-full", URGENCY_DOT.red)} /> ≤24 jam
           </span>
@@ -177,10 +177,10 @@ export function CalendarMonth({
       </div>
 
       {/* Panel tanggal terpilih */}
-      <aside className="rounded-xl border p-4">
+      <aside className="rounded-xl border p-3">
         <h3 className="mb-3 font-semibold">{formatTanggalPendek(`${selected}T00:00:00+07:00`)} {year}</h3>
         {selectedTasks.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
+          <p className="py-4 text-center text-sm text-muted-foreground">
             Tidak ada deadline di tanggal ini.
           </p>
         ) : (
@@ -189,9 +189,9 @@ export function CalendarMonth({
               <li key={t.id}>
                 <Link
                   href={`/tugas/${t.id}`}
-                  className="block rounded-lg border p-3 transition-colors hover:border-primary/40 hover:bg-muted/40"
+                  className="block rounded-lg border p-2.5 transition-colors hover:border-primary/40 hover:bg-muted/40"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                     {t.course_name}
                   </p>
                   <p className="mt-0.5 text-sm font-semibold leading-snug">{t.title}</p>

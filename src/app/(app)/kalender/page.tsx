@@ -31,9 +31,9 @@ export default async function KalenderPage({ searchParams }: PageProps<"/kalende
   const tasks = await getTasksInRange(startIso, endIso);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Kalender Akademik</h1>
+        <h1 className="text-xl font-bold tracking-tight">Kalender Akademik</h1>
         <p className="text-sm text-muted-foreground">
           Klik tanggal untuk melihat deadline di hari tersebut.
         </p>

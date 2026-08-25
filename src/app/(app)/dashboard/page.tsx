@@ -58,9 +58,12 @@ function StatCard({
 
 export default async function DashboardPage() {
   const profile = await requireProfile();
-  const [kelas, tasks] = await Promise.all([getMyClass(), getMyTasks()]);
   const isAdmin = profile.role === "admin";
-  const classProgress = isAdmin ? await getClassProgress() : null;
+  const [kelas, tasks, classProgress] = await Promise.all([
+    getMyClass(),
+    getMyTasks(),
+    isAdmin ? getClassProgress() : Promise.resolve(null),
+  ]);
 
   const now = nowMs();
   const notDone = tasks.filter((t) => t.my_status !== "selesai");

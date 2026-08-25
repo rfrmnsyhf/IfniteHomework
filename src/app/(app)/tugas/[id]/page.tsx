@@ -45,12 +45,13 @@ export default async function TaskDetailPage({
       ? Math.round((checklist.filter((c) => c.completed).length / checklist.length) * 100)
       : null;
 
-  const courses = isAdmin ? await getCourses() : [];
-  const mySubmission =
+  const [courses, mySubmission, submissions] = await Promise.all([
+    isAdmin ? getCourses() : Promise.resolve([] as never[]),
     profile.role === "mahasiswa" && task.allow_submission
-      ? await getMySubmission(task.id, profile.id)
-      : null;
-  const submissions = isAdmin ? await getTaskSubmissions(task.id) : [];
+      ? getMySubmission(task.id, profile.id)
+      : Promise.resolve(null),
+    isAdmin ? getTaskSubmissions(task.id) : Promise.resolve([] as never[]),
+  ]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

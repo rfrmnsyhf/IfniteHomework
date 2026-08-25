@@ -125,10 +125,10 @@ export function NotificationBell({
   initialUnread: number;
   userId: string;
 }) {
+  const router = useRouter();
   const [items, setItems] = useState(initialItems);
   const [unread, setUnread] = useState(initialUnread);
 
-  // pola React "menyesuaikan state saat render" — sinkron saat data server berubah
   useEffect(() => {
     setItems(initialItems);
     setUnread(initialUnread);
@@ -194,16 +194,15 @@ export function NotificationBell({
         {items.slice(0, 5).map((n) => (
           <DropdownMenuItem
             key={n.id}
-            render={
-              <Link
-                href={n.link ?? "/notifikasi"}
-                className={cn(
-                  "flex flex-col items-start gap-0.5 py-2.5 data-highlighted:bg-accent data-highlighted:text-accent-foreground",
-                  !n.read && "bg-primary/5"
-                )}
-              />
-            }
-            onClick={() => !n.read && markRead(n.id)}
+            className={cn(
+              "flex flex-col items-start gap-0.5 py-2.5",
+              !n.read && "bg-primary/5"
+            )}
+            onClick={() => {
+              if (!n.read) void markRead(n.id).catch(() => {});
+              if (n.link) router.push(n.link);
+              else router.push("/notifikasi");
+            }}
           >
             <span className={cn("line-clamp-1 text-sm", !n.read && "font-semibold")}>
               {n.title}
@@ -216,7 +215,7 @@ export function NotificationBell({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="justify-center text-sm font-medium text-primary"
-          render={<Link href="/notifikasi" />}
+          onClick={() => router.push("/notifikasi")}
         >
           Lihat Semua
         </DropdownMenuItem>
@@ -237,6 +236,7 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const current = NAV_ITEMS.find((i) => pathname.startsWith(i.href));
@@ -328,10 +328,10 @@ export function AppShell({
                   <p className="text-xs font-normal text-muted-foreground">{profile.nim ?? "-"} · {ROLE_LABEL[profile.role]}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href="/pengaturan" />}>
+                <DropdownMenuItem onClick={() => router.push("/pengaturan")}>
                   <Settings className="size-4" /> Pengaturan
                 </DropdownMenuItem>
-                <DropdownMenuItem render={<Link href="/notifikasi" />}>
+                <DropdownMenuItem onClick={() => router.push("/notifikasi")}>
                   <Bell className="size-4" /> Notifikasi
                 </DropdownMenuItem>
               </DropdownMenuContent>

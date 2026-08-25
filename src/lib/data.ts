@@ -47,19 +47,13 @@ function mergeTaskMeta(
 async function fetchTaskMeta(taskIds: string[], userId?: string) {
   const supabase = await createClient();
   if (taskIds.length === 0) return { statuses: [], checklists: [] };
-
   let statusQuery = supabase
     .from("user_task_status")
     .select("task_id, status, notes")
     .in("task_id", taskIds);
   if (userId) statusQuery = statusQuery.eq("user_id", userId);
-  const { data: statuses } = await statusQuery;
-
-  const { data: checklists } = await supabase
-    .from("checklists")
-    .select("task_id, completed")
-    .in("task_id", taskIds);
-
+  const checklistQuery = supabase.from("checklists").select("task_id, completed").in("task_id", taskIds);
+  const [{ data: statuses }, { data: checklists }] = await Promise.all([statusQuery, checklistQuery]);
   return {
     statuses: (statuses ?? []) as Array<{ task_id: string; status: PersonalTaskStatus; notes: string | null }>,
     checklists: (checklists ?? []) as Array<{ task_id: string; completed: boolean }>,
@@ -119,17 +113,12 @@ export async function getTaskById(taskId: string) {
   const { statuses, checklists } = await fetchTaskMeta([taskId], profile.id);
   const [merged] = mergeTaskMeta([task as RawTask], statuses, checklists);
 
-  const { data: attachments } = await supabase
-    .from("attachments")
-    .select("*")
-    .eq("task_id", taskId)
-    .order("created_at", { ascending: true });
-
-  const { data: fullChecklist } = await supabase
-    .from("checklists")
-    .select("*")
-    .eq("task_id", taskId)
-    .order("sort_order", { ascending: true });
+  const [attachmentsRes, checklistRes] = await Promise.all([
+    supabase.from("attachments").select("*").eq("task_id", taskId).order("created_at", { ascending: true }),
+    supabase.from("checklists").select("*").eq("task_id", taskId).order("sort_order", { ascending: true }),
+  ]);
+  const { data: attachments } = attachmentsRes;
+  const { data: fullChecklist } = checklistRes;
 
   return {
     task: merged,
@@ -356,7 +345,7 @@ export async function getNotifications(limit = 30): Promise<{
 // ========================== FEEDBACK =========================
 export async function getFeedbacks(): Promise<import("./types").Feedback[]> {
   const supa = await createClient();
-  const { data } = await supa.from("feedback").select("*, author:profiles(name)").order("created_at", { ascending: false });
+  const { data } = await supa.from("feedback").select("*, author:profiles(name)").order("created_at", { ascending: false }).limit(50);
   return ((data ?? []) as Array<Record<string, unknown>>).map((f) => ({ ...(f as unknown as import("./types").Feedback), author_name: (f.author as { name?: string } | null)?.name ?? null }));
 }
 
